@@ -5,10 +5,10 @@ namespace MealFlow.Repository.IRepository
 {
     public interface ICategoryRepository
     {
-        public Category Get(int id);
-        public IEnumerable<Category> GetAll();
-        public Category Create(Category category);
-        public Category Update(Category category);
-        public bool Delete(int id);
+        public Task<Category> Get(int id);
+        public Task<IEnumerable<Category>> GetAll();
+        public Task<Category> Create(Category category);
+        public Task<Category> Update(Category category);
+        public Task<bool> Delete(int id);
     }
 }
