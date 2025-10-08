@@ -3,7 +3,7 @@ using MealFlow.Repository.IRepository;
 
 namespace MealFlow.Repository
 {
-    public class CategoryRepository : ICategory
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly ApplicationDbContext _db;
         public CategoryRepository(ApplicationDbContext db)

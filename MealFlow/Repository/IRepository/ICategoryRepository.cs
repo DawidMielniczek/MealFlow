@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MealFlow.Repository.IRepository
 {
-    public interface ICategory
+    public interface ICategoryRepository
     {
         public Category Get(int id);
         public IEnumerable<Category> GetAll();
