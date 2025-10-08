@@ -20,7 +20,7 @@ else
         <div class="card-body p-4">
             <div class="row pb-3">
                 <div class="col-12 text-end">
-                    <button class="btn btn-lg btn-secondary" style="width: 250px;"> Add new Category </button>
+                    <a href="category/create" class="btn btn-lg btn-secondary" style="width: 250px;"> Add new Category </a>
                 </div>
             </div>
             @if(Categories.Any())
@@ -37,7 +37,10 @@ else
                         {
                             <tr>
                                 <td> @obj.Name </td>
-                                <td> Buttons  </td>
+                                <td> 
+                                    <a href="@($"category/update/{obj.Id}")" class="btn btn-primary "> Edit </a>
+                                    <button class="btn btn-danger"> Delete </button>    
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -51,17 +54,20 @@ else
     public bool isProcessing { get; set; } = false;
     private IEnumerable<Category> Categories = new List<Category>();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        isProcessing = true;
-        await Task.Delay(2000);
-        LoadCategories();
-        isProcessing = false;
-
+        if (firstRender)
+        {
+            isProcessing = true;
+            StateHasChanged();
+            await LoadCategories();
+            isProcessing = false;
+            StateHasChanged();
+        }
     }
-    private void LoadCategories()
+    private async Task LoadCategories()
     {
-        Categories = _CategoryRepository.GetAll();
+        Categories = await _CategoryRepository.GetAllAsync();
     }
 
 

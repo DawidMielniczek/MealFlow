@@ -12,14 +12,14 @@ namespace MealFlow.Repository
             _db = db;
         }
 
-        public async Task<Category> Create(Category category)
+        public async Task<Category> CreateAsync(Category category)
         {
             await _db.Category.AddAsync(category);
             await _db.SaveChangesAsync();
             return category;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var obj = await _db.Category.Where(x => x.Id == id).FirstOrDefaultAsync();
             if(obj != null)
@@ -30,7 +30,7 @@ namespace MealFlow.Repository
             return false;
         }
 
-        public async Task<Category> Get(int id)
+        public async Task<Category> GetAsync(int id)
         {
             var obj = await _db.Category.Where(x => x.Id ==id).FirstOrDefaultAsync();
             if (obj != null)
@@ -38,12 +38,12 @@ namespace MealFlow.Repository
             return obj;
         }
 
-        public async Task<IEnumerable<Category>> GetAll()
+        public async Task<IEnumerable<Category>> GetAllAsync()
         {
             return await _db.Category.ToListAsync();
         }
 
-        public async Task<Category> Update(Category category)
+        public async Task<Category> UpdateAsync(Category category)
         {
             var obj = await _db.Category.Where(x => x.Id == category.Id).FirstOrDefaultAsync();
             if(obj is not null)
