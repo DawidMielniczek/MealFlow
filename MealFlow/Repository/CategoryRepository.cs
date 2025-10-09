@@ -34,8 +34,8 @@ namespace MealFlow.Repository
         {
             var obj = await _db.Category.Where(x => x.Id ==id).FirstOrDefaultAsync();
             if (obj != null)
-                return new Category();
-            return obj;
+                return obj;
+            return new Category();
         }
 
         public async Task<IEnumerable<Category>> GetAllAsync()
