@@ -1,0 +1,96 @@
+﻿@page "/product/create"
+@page "/product/update/{id:int}"
+@using MealFlow.Services.Extensions
+@inject IJSRuntime _Js
+
+@inject IProductRepository _ProductRepository
+@inject NavigationManager _navigationManager
+
+
+@if (isProcessing == true)
+{
+    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-black bg-gradient m-lg-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">@(Id > 0 ? "Product" : "Create") List</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <EditForm Model="product" FormName="ProductUpsertForm" OnValidSubmit="UpsertProduct">
+                <DataAnnotationsValidator />
+                <div class="border p-3 mt-4">
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="product.Name" class="form-control" />
+                        <label for="Name"> Name </label>
+                        <ValidationMessage For="@(() => product.Name)" />
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6 col-md-3">
+                            <button type="submit" class="btn btn-primary form-control" disabled="@isProcessing">
+                                <i class="bi bi-floppy2-fill"> </i>  @(isProcessing ? "Update..." : "Update")
+                            </button>
+                            <a href="product" class="btn btn-secondary form-control" disabled="@isProcessing">
+                                <i class="bi bi-arrow-bar-left"> </i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </EditForm>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public bool isProcessing { get; set; } = false;
+    [SupplyParameterFromForm]
+    public Product product { get; set; } = new Product();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            isProcessing = true;
+            await LoadProduct();
+            isProcessing = false;
+        }
+    }
+    private async Task LoadProduct()
+    {
+        if (Id > 0)
+        {
+            product = await _ProductRepository.GetAsync(Id);
+        }
+    }
+
+    private async Task UpsertProduct()
+    {
+        isProcessing = true;
+        if(Id == 0)
+        {
+            // create
+            await _ProductRepository.CreateAsync(product);
+            await _Js.ToastSuccess("Product Created Successfully!");
+        }
+        else
+        {
+            await _ProductRepository.UpdateAsync(product);
+            await _Js.ToastSuccess("Product Udpated Successfully!");
+        }
+        isProcessing = false;
+        _navigationManager.NavigateTo("product");
+    }
+
+}
