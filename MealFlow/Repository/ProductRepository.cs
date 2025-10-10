@@ -7,9 +7,11 @@ namespace MealFlow.Repository
     public class ProductRepository : IProductRepository
     {
         private readonly ApplicationDbContext _db;
-        public ProductRepository(ApplicationDbContext db)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductRepository(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
         {
             _db = db;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<Product> CreateAsync(Product product)
@@ -22,6 +24,11 @@ namespace MealFlow.Repository
         public async Task<bool> DeleteAsync(int id)
         {
             var obj = await _db.Product.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('/'));
+            if (File.Exists(imagePath))
+            {
+                File.Delete(imagePath);
+            }
             if(obj != null)
             {
                 _db.Product.Remove(obj);
@@ -40,7 +47,7 @@ namespace MealFlow.Repository
 
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            return await _db.Product.ToListAsync();
+            return await _db.Product.Include(p => p.Category).ToListAsync();
         }
 
         public async Task<Product> UpdateAsync(Product product)

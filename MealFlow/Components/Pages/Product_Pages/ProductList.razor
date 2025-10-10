@@ -1,7 +1,9 @@
 ﻿@page "/Product"
 @using MealFlow.Services.Extensions
-@inject IProductRepository _ProductRepository
+@using System.Globalization
+
 @inject IJSRuntime _Js
+@inject ICategoryRepository _CategoryRepository
 @inject IProductRepository _ProductRepository
 
 
@@ -35,20 +37,25 @@ else
                     </a>
                 </div>
             </div>
-            @if(Categories.Any())
+            @if(Products.Any())
             {
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th> Name </th>
-                            <th>  </th>
+                            <th> Price  </th>
+                            <th> Special Tag  </th>
+                            <th> Category  </th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var obj in Categories)
+                        @foreach(var obj in Products)
                         {
                             <tr>
                                 <td> @obj.Name </td>
+                                <td> @obj.Price.ToString("C", CultureInfo.GetCultureInfo("en-us")) </td>
+                                <td> <span class="badge text-bg-info"> @obj.SpecialTag </span></td>
+                                <td> @obj.Category.Name </td>
                                 <td> 
                                     <a href="@($"product/update/{obj.Id}")" class="btn btn-primary ">
                                         <i class="bi bi-pencil"></i> Edit
@@ -68,8 +75,9 @@ else
 
 @code {
     public bool isProcessing { get; set; } = false;
-    private IEnumerable<Product> Categories = new List<Product>();
+    private IEnumerable<Product> Products = new List<Product>();
     private int DeleteProductID { get; set; } = 0;
+    private IEnumerable<Category> _categories = new List<Category>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -77,14 +85,15 @@ else
         {
             isProcessing = true;
             StateHasChanged();
-            await LoadCategories();
+            await LoadProducts();
             isProcessing = false;
             StateHasChanged();
         }
     }
-    private async Task LoadCategories()
+    private async Task LoadProducts()
     {
-        Categories = await _ProductRepository.GetAllAsync();
+        Products = await _ProductRepository.GetAllAsync();
+        _categories = await _CategoryRepository.GetAllAsync();
     }
 
     private async Task HandleDelete(int id)
@@ -105,7 +114,7 @@ else
             else
                 _Js?.ToastError("Error when you delete this product");
 
-            await LoadCategories();
+            await LoadProducts();
         }
         DeleteProductID = 0;
         isProcessing = false;
