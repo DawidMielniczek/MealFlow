@@ -5,7 +5,10 @@
 @inject ICategoryRepository _CategoryRepository
 
 
-<BsModal />
+<BsModal OnModalConfirmation= "ConfirmDelete_Click" 
+    Title="Are you sure you want delete this Category?" 
+    ButtonText="Delete"
+    ButtonBootstrapStyle="btn-danger" />
 
 @if(isProcessing == true)
 {
@@ -93,6 +96,7 @@ else
     private async Task ConfirmDelete_Click(bool isConfirmed)
     {
         isProcessing = true;
+        await _Js.InvokeVoidAsync("HideConfirmationModal");
         if (isConfirmed && DeleteCategoryID != 0)
         {
             var result = await _CategoryRepository.DeleteAsync(DeleteCategoryID);
