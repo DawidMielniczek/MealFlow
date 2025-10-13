@@ -1,11 +1,18 @@
 ﻿@inherits LayoutComponentBase
-
+@using MealFlow.Utility
 <div class="page">
+    @* <AuthorizeView Roles="@SD.Role_Customer">
+        User
+    </AuthorizeView>
+    <AuthorizeView Roles="@SD.Role_admin">
+        Admin
+    </AuthorizeView> *@
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
+        <NavBar />
         <div class="top-row px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
