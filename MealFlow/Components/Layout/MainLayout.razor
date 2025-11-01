@@ -1,30 +1,54 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthStateProvider
 @using MealFlow.Utility
 <div class="page">
-    @* <AuthorizeView Roles="@SD.Role_Customer">
-        User
-    </AuthorizeView>
     <AuthorizeView Roles="@SD.Role_admin">
-        Admin
-    </AuthorizeView> *@
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    </AuthorizeView>
 
     <main>
-        <NavBar />
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+        @if (_navBarVisible)
+        {
+            <NavBar />
+        }
+        
             @Body
-        </article>
+          
     </main>
 </div>
-
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code{
+
+    private bool _navBarVisible;
+    protected override async Task OnInitializedAsync(){
+        _navBarVisible = await ShowNavBar();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _navBarVisible = await ShowNavBar();
+    }
+
+    private async Task<bool> ShowNavBar(){
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var authenticated = user.Identity is not null && user.Identity.IsAuthenticated; // sprawdzenie czy jest uwierzytelniony 
+        if (!authenticated)
+        {
+            return true;
+        }
+        //navbar nie powinien byc widoczny dla admina..
+        if (!user.IsInRole(SD.Role_admin))
+        {
+            return true;
+        }
+        return false;
+    }
+}
