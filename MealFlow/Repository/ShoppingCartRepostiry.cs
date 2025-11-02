@@ -27,7 +27,7 @@ namespace MealFlow.Repository
         {
             if(string.IsNullOrEmpty(userId))
             { 
-                 // return false;
+                 return false;
             }
             var cart = await _context.ShoppingCart.FirstOrDefaultAsync(u=> u.UserId == userId && u.ProductId == productId);
 

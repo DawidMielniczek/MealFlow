@@ -1,7 +1,13 @@
 ﻿@page "/"
 @using System.Globalization
+@using MealFlow.Services.Extensions
 @inject IProductRepository _productRepository
 @inject ICategoryRepository _categoryRepository
+@inject IShoppingCartRepository _ShoppingCartRepository
+@inject AuthenticationStateProvider _AuthenticationStateProvider
+@inject IJSRuntime _Js
+@inject NavigationManager _NavigationManager
+
 <PageTitle>Home</PageTitle>
 
 @if (isProcessing == true)
@@ -64,7 +70,9 @@ else
                                 <h5 class="card-title text-center lead text-success"> @product.Name </h5>
                                 <p class="card-text mt-2">@((MarkupString)product.Description)</p>
                                 <h4 class="text-center">
+                                    <div class="m-lg-auto p-2" @onclick="() =>AddOrder(product)">
                                     <i class="bi bi-cart3 btn btn-success text-right  px-5 form-control"> Add to cart</i>
+                                    </div>
                                 </h4>
                                 
 
@@ -135,5 +143,32 @@ else
     {
         return categoryId == _selectedCategoryId ? "active" : string.Empty;
 
+    }
+
+    private async Task AddOrder(Product product)
+    {
+        var authState = await _AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var authenticated = user.Identity is not null && user.Identity.IsAuthenticated; // sprawdzenie czy jest uwierzytelniony
+        if (!authenticated)
+        {
+            _NavigationManager.NavigateTo("/account/login");
+        }
+        else
+        {
+            var result = await _ShoppingCartRepository.UpdateCartAsync(
+                user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value,
+                product.Id,
+                1);
+
+            if (result)
+            {
+                _Js?.ToastSuccess("Product added to cart successfully");
+            }
+            else
+            {
+                _Js?.ToastError("Error encountered");
+            }
+        } 
     }
 }
